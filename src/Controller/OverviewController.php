@@ -14,17 +14,35 @@ class OverviewController extends AbstractController
      */
     public function index()
     {
+        $process = new Process(['bash', 'list_repos.sh'], '/app/repos');
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $stdOut = $process->getOutput();
+        $explodedForm = explode("\n", $stdOut);
+
+        $repositories = [];
+        foreach ($explodedForm as $rowPart) {
+            $rowPart = trim($rowPart);
+            if (!empty($rowPart)) {
+                $repositories[] = $rowPart;
+            }
+        }
+
         return $this->render('overview/index.html.twig', [
-            'controller_name' => 'OverviewController',
+            'repositories' => $repositories,
         ]);
     }
 
     /**
-     * @Route("/overview/{reponame}", name="overview-per-repo")
+     * @Route("/overview/{repo}", name="overview-per-repo")
      */
-    public function perRepo($reponame)
+    public function perRepo($repo)
     {
-        $process = new Process(['bash', 'count.sh', $reponame], '/app/repos');
+        $process = new Process(['bash', 'count.sh', $repo], '/app/repos');
         $process->run();
 
         if (!$process->isSuccessful()) {
@@ -39,13 +57,13 @@ class OverviewController extends AbstractController
             $rowPart = trim($rowPart);
             $parts = explode(' ', $rowPart);
             if (!empty($parts[0]) && !empty($parts[1])) {
-                $contribPerWeekday[$parts[1]] = (int) $parts[0];
+                $contribPerWeekday[$parts[1]] = (int)$parts[0];
             }
         }
 
         return $this->render('overview/repo.html.twig', [
             'contribPerWeekday' => $contribPerWeekday,
-            'reponame' => $reponame,
+            'reponame' => $repo,
         ]);
     }
 }
