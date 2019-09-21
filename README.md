@@ -20,5 +20,5 @@ Lets see the statistics of multiple git repositories on embeddable charts and di
 #### clone repositories
 `cd repos && python clone_repos.py`
 
-###Have a look
+### Have a look
 http://landed.docker/overview
