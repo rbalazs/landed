@@ -1,0 +1,17 @@
+{
+  "repositories": [
+    {
+      "url": "git@github.com:rbalazs/basebase.git",
+      "name": "basebase"
+    },
+    {
+      "url": "git@github.com:rbalazs/bdb.git",
+      "name": "bdb"
+    },
+    {
+      "url": "git@github.com:rbalazs/darts-scoreboard.git",
+      "name": "darts-scoreboard"
+    }
+  ]
+}
+
