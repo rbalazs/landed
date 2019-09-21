@@ -8,6 +8,6 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
-.composer
+.composer/*
 repos/*/
 /repos/repo_list.json
