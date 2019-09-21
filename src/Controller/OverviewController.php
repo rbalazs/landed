@@ -14,17 +14,38 @@ class OverviewController extends AbstractController
      */
     public function index()
     {
-        $process = new Process(['git', 'status'], '/app/repos');
+        return $this->render('overview/index.html.twig', [
+            'controller_name' => 'OverviewController',
+        ]);
+    }
+
+    /**
+     * @Route("/overview/{reponame}", name="overview-per-repo")
+     */
+    public function perRepo($reponame)
+    {
+        $process = new Process(['bash', 'count.sh', $reponame], '/app/repos');
         $process->run();
 
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
-        echo $process->getOutput();
+        $stdOut = $process->getOutput();
+        $explodedForm = explode("\n", $stdOut);
 
-        return $this->render('overview/index.html.twig', [
-            'controller_name' => 'OverviewController',
+        $contribPerWeekday = [];
+        foreach ($explodedForm as $rowPart) {
+            $rowPart = trim($rowPart);
+            $parts = explode(' ', $rowPart);
+            if (!empty($parts[0]) && !empty($parts[1])) {
+                $contribPerWeekday[$parts[1]] = (int) $parts[0];
+            }
+        }
+
+        return $this->render('overview/repo.html.twig', [
+            'contribPerWeekday' => $contribPerWeekday,
+            'reponame' => $reponame,
         ]);
     }
 }
