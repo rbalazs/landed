@@ -1,4 +1,4 @@
-#Landed
+# Landed
 Get the statistics of multiple git projects, displayed on embeddable charts and diagrams.
 
 ![Preview](cmt_per_day_project.png)
