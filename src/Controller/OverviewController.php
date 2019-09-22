@@ -42,6 +42,8 @@ class OverviewController extends AbstractController
      */
     public function perRepo($repo)
     {
+        // Per weekday.
+        $contribPerWeekday = [];
         $process = new Process(['bash', 'count.sh', $repo], '/app/repos');
         $process->run();
 
@@ -52,7 +54,6 @@ class OverviewController extends AbstractController
         $stdOut = $process->getOutput();
         $explodedForm = explode("\n", $stdOut);
 
-        $contribPerWeekday = [];
         foreach ($explodedForm as $rowPart) {
             $rowPart = trim($rowPart);
             $parts = explode(' ', $rowPart);
@@ -61,8 +62,30 @@ class OverviewController extends AbstractController
             }
         }
 
+        // Per file.
+        $mostFrequentlyChangedFiles = [];
+        $process = new Process(['bash', 'most_frequently_changed_files.sh', $repo], '/app/repos');
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $stdOut = $process->getOutput();
+        $explodedForm = explode("\n", $stdOut);
+
+        foreach ($explodedForm as $rowPart) {
+            $rowPart = trim($rowPart);
+            $parts = explode(' ', $rowPart);
+            if (!empty($parts[0]) && !empty($parts[1])) {
+                $mostFrequentlyChangedFiles[$parts[1]] = (int)$parts[0];
+            }
+        }
+
+
         return $this->render('overview/repo.html.twig', [
             'contribPerWeekday' => $contribPerWeekday,
+            'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
             'reponame' => $repo,
         ]);
     }
