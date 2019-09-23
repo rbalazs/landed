@@ -1,5 +1,5 @@
 # Goal
-Lets see the statistics of multiple git repositories on embeddable charts and diagrams.
+Lets see the statistics of multiple git repositories on embeddable charts and diagrams. Most frequently changed files, commits distribution per weekday or per hour, number of changed lines per commmit, etc. The diagrams shall be embeddable image files at the end of the day.
 
 ![Preview](cmt_per_day_project.png)
 
