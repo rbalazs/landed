@@ -82,10 +82,31 @@ class OverviewController extends AbstractController
             }
         }
 
+        // Per hour.
+        $commitsPerHour = [];
+        $process = new Process(['bash', 'count_commits_per_hour.sh', $repo], '/app/repos');
+        $process->run();
+
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $stdOut = $process->getOutput();
+        $explodedForm = explode("\n", $stdOut);
+
+        foreach ($explodedForm as $rowPart) {
+            $rowPart = trim($rowPart);
+            $parts = explode(' ', $rowPart);
+            if (!empty($parts[0]) && !empty($parts[1])) {
+                $key = $parts[1] . ':00:00 - ' . $parts[1] . ':59:59';
+                $commitsPerHour[$key] = (int)$parts[0];
+            }
+        }
 
         return $this->render('overview/repo.html.twig', [
             'contribPerWeekday' => $contribPerWeekday,
             'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
+            'commitsPerHour' => $commitsPerHour,
             'reponame' => $repo,
         ]);
     }
