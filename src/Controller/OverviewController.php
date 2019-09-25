@@ -44,7 +44,7 @@ class OverviewController extends AbstractController
     {
         // Per weekday.
         $contribPerWeekday = [];
-        $process = new Process(['bash', 'count.sh', $repo], '/app/repos');
+        $process = new Process(['bash', 'count_commits_per_weekday.sh', $repo], '/app/repos');
         $process->run();
 
         if (!$process->isSuccessful()) {
