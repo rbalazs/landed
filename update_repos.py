@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-with open('../config/repositories/repo_list.json') as json_file:
+with open('config/repositories/repo_list.json') as json_file:
     data = json.load(json_file)
     print('######################################### Repositories #########################################')
     for repo in data['repositories']:
@@ -9,5 +9,5 @@ with open('../config/repositories/repo_list.json') as json_file:
     print('################################################################################################')
     print('')
     for repo in data['repositories']:
-        subprocess.check_call("git clone " + repo['url'], shell=True)
+        subprocess.check_call("cd repos/" + repo['name'] + " && git reset --hard origin/master && git pull", shell=True)
         print('')
