@@ -17,12 +17,15 @@ Most frequently changed files, commits distribution per weekday or per hour, num
 `docker-compose exec php composer install`
 
 ### Load up repositories
-#### copy repository list, and set the urls
+#### Copy repository list, and set the url list
 `scp config/repositories/repo_list.json.dist config/repositories/repo_list.json`
 
 **_[Example](https://github.com/rbalazs/landed/blob/70711a3a8108d5e0cf27d62ece7ac2972b83711a/repos/repo_list.json.dist)_**
-#### clone repositories
-`cd repos && python clone_repos.py`
+ - #### clone repositories
+`python clone_repos.py`
+
+ - #### update already cloned repositories
+`python update_repos.py`
 
 ### Have a look
 http://landed.docker/overview
