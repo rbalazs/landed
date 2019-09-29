@@ -1,7 +1,7 @@
 import json
 import subprocess
 
-with open('repo_list.json') as json_file:
+with open('../config/repositories/repo_list.json') as json_file:
     data = json.load(json_file)
     print('######################################### Repositories #########################################')
     for repo in data['repositories']:
