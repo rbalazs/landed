@@ -18,7 +18,7 @@ Most frequently changed files, commits distribution per weekday or per hour, num
 
 ### Load up repositories
 #### copy repository list, and set the urls
-`scp repos/repo_list.json.dist repos/repo_list.json`
+`scp config/repositories/repo_list.json.dist config/repositories/repo_list.json`
 
 **_[Example](https://github.com/rbalazs/landed/blob/70711a3a8108d5e0cf27d62ece7ac2972b83711a/repos/repo_list.json.dist)_**
 #### clone repositories
