@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
+use App\BashProcess\GitStatistics;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 
 class OverviewController extends AbstractController
 {
@@ -14,23 +13,9 @@ class OverviewController extends AbstractController
      */
     public function index()
     {
-        $process = new Process(['bash', 'list_repos.sh'], '/app/repos');
-        $process->run();
+        $gitStats = new GitStatistics();
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $stdOut = $process->getOutput();
-        $explodedForm = explode("\n", $stdOut);
-
-        $repositories = [];
-        foreach ($explodedForm as $rowPart) {
-            $rowPart = trim($rowPart);
-            if (!empty($rowPart)) {
-                $repositories[] = $rowPart;
-            }
-        }
+        $repositories = $gitStats->listRepositories();
 
         return $this->render('overview/index.html.twig', [
             'repositories' => $repositories,
@@ -42,66 +27,13 @@ class OverviewController extends AbstractController
      */
     public function perRepo($repo)
     {
-        // Per weekday.
-        $contribPerWeekday = [];
-        $process = new Process(['bash', 'count_commits_per_weekday.sh', $repo], '/app/repos');
-        $process->run();
+        $gitStatistics = new GitStatistics();
 
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
+        $contribPerWeekday = $gitStatistics->getCommitPerWeekday($repo);
 
-        $stdOut = $process->getOutput();
-        $explodedForm = explode("\n", $stdOut);
+        $mostFrequentlyChangedFiles = $gitStatistics->getMostFrequentlyChangingFiles($repo);
 
-        foreach ($explodedForm as $rowPart) {
-            $rowPart = trim($rowPart);
-            $parts = explode(' ', $rowPart);
-            if (!empty($parts[0]) && !empty($parts[1])) {
-                $contribPerWeekday[$parts[1]] = (int)$parts[0];
-            }
-        }
-
-        // Per file.
-        $mostFrequentlyChangedFiles = [];
-        $process = new Process(['bash', 'most_frequently_changed_files.sh', $repo], '/app/repos');
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $stdOut = $process->getOutput();
-        $explodedForm = explode("\n", $stdOut);
-
-        foreach ($explodedForm as $rowPart) {
-            $rowPart = trim($rowPart);
-            $parts = explode(' ', $rowPart);
-            if (!empty($parts[0]) && !empty($parts[1])) {
-                $mostFrequentlyChangedFiles[$parts[1]] = (int)$parts[0];
-            }
-        }
-
-        // Per hour.
-        $commitsPerHour = [];
-        $process = new Process(['bash', 'count_commits_per_hour.sh', $repo], '/app/repos');
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            throw new ProcessFailedException($process);
-        }
-
-        $stdOut = $process->getOutput();
-        $explodedForm = explode("\n", $stdOut);
-
-        foreach ($explodedForm as $rowPart) {
-            $rowPart = trim($rowPart);
-            $parts = explode(' ', $rowPart);
-            if (!empty($parts[0]) && !empty($parts[1])) {
-                $key = $parts[1] . ':00:00 - ' . $parts[1] . ':59:59';
-                $commitsPerHour[$key] = (int)$parts[0];
-            }
-        }
+        $commitsPerHour = $gitStatistics->getCommitPerHour($repo);
 
         return $this->render('overview/repo.html.twig', [
             'contribPerWeekday' => $contribPerWeekday,
