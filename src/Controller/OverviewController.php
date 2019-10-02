@@ -35,7 +35,10 @@ class OverviewController extends AbstractController
 
         $commitsPerHour = $gitStatistics->getCommitPerHour($repo);
 
+        $commitsPerAuthors = $gitStatistics->getCommitPerAuthors($repo);
+
         return $this->render('overview/repo.html.twig', [
+            'commitsPerAuthors' => $commitsPerAuthors,
             'contribPerWeekday' => $contribPerWeekday,
             'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
             'commitsPerHour' => $commitsPerHour,
