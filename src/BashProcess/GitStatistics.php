@@ -16,6 +16,29 @@ class GitStatistics
      * @param $repo
      * @return array
      */
+    public function getCommitPerAuthors($repo): array
+    {
+        $commitsPerAuthor = [];
+
+        $processOutput = $this->getProcessOutput('count_commits_per_authors.sh', $repo);
+
+        foreach ($processOutput as $rowPart) {
+            $rowPart = trim($rowPart);
+            $parts = explode(' ', $rowPart);
+            if (!empty($parts[0]) && !empty($parts[1])) {
+                $commitsPerAuthor[$parts[1]] = (int)$parts[0];
+
+            }
+        }
+
+        return $commitsPerAuthor;
+    }
+
+
+    /**
+     * @param $repo
+     * @return array
+     */
     public function getCommitPerHour($repo): array
     {
         $commitsPerHour = [];
@@ -51,7 +74,6 @@ class GitStatistics
                 $contribPerWeekday[$parts[1]] = (int)$parts[0];
             }
         }
-
 
         return $contribPerWeekday;
     }
