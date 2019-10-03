@@ -27,13 +27,11 @@ class GitStatistics
             $parts = explode(' ', $rowPart);
             if (!empty($parts[0]) && !empty($parts[1])) {
                 $commitsPerAuthor[$parts[1]] = (int)$parts[0];
-
             }
         }
 
         return $commitsPerAuthor;
     }
-
 
     /**
      * @param $repo
