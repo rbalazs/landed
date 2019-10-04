@@ -62,4 +62,12 @@ class OverviewController extends AbstractController
             'reponame' => $repo,
         ]);
     }
+
+    /**
+     * @Route("/clone-repo/{repo}", name="clone-repo")
+     */
+    public function cloneRepo($repo)
+    {
+        // TODO: Clone repository.
+    }
 }
