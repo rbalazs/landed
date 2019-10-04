@@ -5,13 +5,24 @@
 {% block body %}
 
     <div class="example-wrapper">
-        <h1>Hello bello! ✅</h1>
+        <h1>Hello bello!</h1>
         Betöltött kódtárolók:
         <ul>
             {% for repo in repositories %}
-                <li><code><a href="{{ path('overview-per-repo', {'repo': repo}) }}">{{ repo }}</a></code></li>
+                <li>
+                    <code>
+                        <a href="{{ path('overview-per-repo', {'repo': repo.name}) }}">{{ repo.name }}
+                        </a>
+                    </code>
+                {% if repo.cloned is defined %}
+                    ✅
+                {% else %}
+                    <a href="{{ path('clone-repo', {'repo': repo.name}) }}" style="background-color: cornsilk">
+                        => CLONE from {{ repo.url }}
+                    </a>
+                {% endif %}
+                </li>
             {% endfor %}
-
         </ul>
     </div>
 {% endblock %}
