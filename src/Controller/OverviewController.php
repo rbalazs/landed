@@ -22,12 +22,20 @@ class OverviewController extends AbstractController
         $configuredRepositories = json_decode(file_get_contents($configFile[0]), true);
 
         $gitStats = new GitStatistics();
-
         $repositories = $gitStats->listRepositories();
 
+        if (!empty($configuredRepositories['repositories'])) {
+            array_map(
+                function ($repo) use (&$configuredRepositories) {
+                    $foundAtKey = array_search($repo, array_column($configuredRepositories['repositories'], 'name'));
+                    $configuredRepositories['repositories'][$foundAtKey]['cloned'] = (bool)$foundAtKey;
+                },
+                $repositories
+            );
+        }
+
         return $this->render('overview/index.html.twig', [
-            'repositories' => $repositories,
-            'configuredRepositories' => $configuredRepositories
+            'repositories' => $configuredRepositories['repositories'],
         ]);
     }
 
