@@ -2,15 +2,48 @@
 
 namespace App\Controller;
 
+use App\BashProcess\GitCommands;
 use App\BashProcess\GitStatistics;
+use App\Service\RepositoryConfigurations;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class OverviewController extends AbstractController
 {
+    /**
+     * @var RepositoryConfigurations
+     */
+    private $repositoryConfigurations;
+
+    /**
+     * @var GitStatistics
+     */
+    private $gitStatistics;
+
+    /**
+     * @var GitCommands
+     */
+    private $gitCommands;
+
+    /**
+     * @param RepositoryConfigurations $repositoryConfigurations
+     * @param GitStatistics $gitStatistics
+     * @param GitCommands $gitCommands
+     */
+    public function __construct(
+        RepositoryConfigurations $repositoryConfigurations,
+        GitStatistics $gitStatistics,
+        GitCommands $gitCommands
+    )
+    {
+        $this->repositoryConfigurations = $repositoryConfigurations;
+        $this->gitStatistics = $gitStatistics;
+        $this->gitCommands = $gitCommands;
+    }
+
     /**
      * @Route("/overview", name="overview")
      * @Route("/", name="")
@@ -18,10 +51,9 @@ class OverviewController extends AbstractController
      */
     public function index()
     {
-        $configuredRepositories = $this->getConfiguredRepositories();
+        $configuredRepositories = $this->repositoryConfigurations->load($this->getParameter('kernel.project_dir'));
 
-        $gitStats = new GitStatistics();
-        $repositories = $gitStats->listRepositories();
+        $repositories = $this->gitStatistics->listRepositories();
 
         if (!empty($configuredRepositories['repositories'])) {
             array_map(
@@ -40,18 +72,15 @@ class OverviewController extends AbstractController
 
     /**
      * @Route("/overview/{repo}", name="overview-per-repo")
+     * @param $repo
+     * @return Response
      */
     public function perRepo($repo)
     {
-        $gitStatistics = new GitStatistics();
-
-        $contribPerWeekday = $gitStatistics->getCommitPerWeekday($repo);
-
-        $mostFrequentlyChangedFiles = $gitStatistics->getMostFrequentlyChangingFiles($repo);
-
-        $commitsPerHour = $gitStatistics->getCommitPerHour($repo);
-
-        $commitsPerAuthors = $gitStatistics->getCommitPerAuthors($repo);
+        $contribPerWeekday = $this->gitStatistics->getCommitPerWeekday($repo);
+        $mostFrequentlyChangedFiles = $this->gitStatistics->getMostFrequentlyChangingFiles($repo);
+        $commitsPerHour = $this->gitStatistics->getCommitPerHour($repo);
+        $commitsPerAuthors = $this->gitStatistics->getCommitPerAuthors($repo);
 
         return $this->render('overview/repo.html.twig', [
             'commitsPerAuthors' => $commitsPerAuthors,
@@ -64,39 +93,27 @@ class OverviewController extends AbstractController
 
     /**
      * @Route("/clone-repo/{repo}", name="clone-repo")
+     * @param $repo
+     * @return RedirectResponse
+     * @throws Exception
      */
     public function cloneRepo($repo)
     {
-        $configuredRepositories = $this->getConfiguredRepositories();
+        $configuredRepositories = $this->repositoryConfigurations->load($this->getParameter('kernel.project_dir'));
 
-        if (!empty($configuredRepositories['repositories'])) {
-            $foundAtKey = array_search($repo, array_column($configuredRepositories['repositories'], 'name'));
-            $url = $configuredRepositories['repositories'][$foundAtKey]['url'];
-
-            $process = new Process(['git', 'clone', $url], '/app/repos');
+        if (empty($configuredRepositories['repositories'])) {
+            throw new Exception('Missing configuration files.');
         }
 
-        $process->run();
+        $foundAtKey = array_search($repo, array_column($configuredRepositories['repositories'], 'name'));
+        $url = $configuredRepositories['repositories'][$foundAtKey]['url'];
 
-        if (!$process->isSuccessful()) {
-            $this->addFlash('process-error','Error:' . $process->getExitCodeText());
+        try {
+            $this->gitCommands->cloneRepository($url);
+        } catch (Exception $exception) {
+            $this->addFlash('process-error', 'Error:' . $exception->getMessage());
         }
 
         return $this->redirectToRoute('overview');
-    }
-
-    /**
-     * @return mixed
-     */
-    private function getConfiguredRepositories(): array
-    {
-        $configuredRepositories = [];
-
-        $rootDir = $this->getParameter('kernel.project_dir');
-        $fileLocator = new FileLocator([$rootDir . '/config/repositories']);
-        $configFile = $fileLocator->locate('repo_list.json', null, false);
-        $configuredRepositories = json_decode(file_get_contents($configFile[0]), true);
-
-        return $configuredRepositories;
     }
 }
