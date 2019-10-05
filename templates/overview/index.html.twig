@@ -3,9 +3,13 @@
 {% block title %}Landed{% endblock %}
 
 {% block body %}
-
     <div class="example-wrapper">
         <h1>Hello bello!</h1>
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <h2>{{ message }}</h2>
+            {% endfor %}
+        {% endfor %}
         Betöltött kódtárolók:
         <ul>
             {% for repo in repositories %}
@@ -14,13 +18,13 @@
                         <a href="{{ path('overview-per-repo', {'repo': repo.name}) }}">{{ repo.name }}
                         </a>
                     </code>
-                {% if repo.cloned is defined %}
-                    ✅
-                {% else %}
-                    <a href="{{ path('clone-repo', {'repo': repo.name}) }}" style="background-color: cornsilk">
-                        => CLONE from {{ repo.url }}
-                    </a>
-                {% endif %}
+                    {% if repo.cloned is defined %}
+                        ✅
+                    {% else %}
+                        <a href="{{ path('clone-repo', {'repo': repo.name}) }}" style="background-color: cornsilk">
+                            => CLONE from {{ repo.url }}
+                        </a>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>
