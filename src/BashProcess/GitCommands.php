@@ -15,6 +15,5 @@ class GitCommands
         if (!$process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
-
     }
 }
