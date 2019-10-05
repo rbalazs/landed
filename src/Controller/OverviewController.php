@@ -90,8 +90,6 @@ class OverviewController extends AbstractController
      */
     private function getConfiguredRepositories(): array
     {
-        $configuredRepositories = [];
-
         $rootDir = $this->getParameter('kernel.project_dir');
         $fileLocator = new FileLocator([$rootDir . '/config/repositories']);
         $configFile = $fileLocator->locate('repo_list.json', null, false);
