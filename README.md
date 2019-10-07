@@ -17,7 +17,13 @@ Most frequently changed files, commits distribution per weekday or per hour, num
 `docker-compose exec php composer install`
 
 Mind, that for cloning private repositories, the host machine has to provide user configuration, and a valid SSH context. 
-@see docker-compose.yml
+```
+      - /etc/group:/etc/group:ro
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/shadow:/etc/shadow:ro
+      - $SSH_AUTH_SOCK:/ssh-agent:ro
+      - $HOME/.ssh/known_hosts:$HOME/.ssh/known_hosts:ro
+```
 
 ### Load up repositories
 #### Copy repository list, and set the url list
