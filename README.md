@@ -27,7 +27,7 @@ Most frequently changed files, commits distribution per weekday or per hour, num
  - #### update already cloned repositories
 `python update_repos.py`
 
-#### clone repositories through the app (through PHP)
+ - #### clone repositories through the app (through PHP)
 Mind, that for cloning private repositories, the host machine has to provide user configuration, and a valid SSH context: 
 ```
 - /etc/group:/etc/group:ro
