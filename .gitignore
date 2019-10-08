@@ -11,3 +11,4 @@
 .composer/*
 repos/*/
 /config/repositories/repo_list.json
+public/ls/*
