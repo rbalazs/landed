@@ -10,7 +10,7 @@ services:
       - ./.docker/php-fpm/php:/usr/local/etc/php:ro,cached
       - .:/app:rw,delegated
       - ./var:/app/var:rw,delegated
-      - ./.composer:/.composer
+      - ./.composer:$HOME/.composer
       - /etc/group:/etc/group:ro
       - /etc/passwd:/etc/passwd:ro
       - /etc/shadow:/etc/shadow:ro
