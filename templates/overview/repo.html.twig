@@ -28,7 +28,8 @@
         });
 
         google.charts.setOnLoadCallback(function () {
-            const chart = new google.visualization.PieChart(document.getElementById('piechart2'));
+            let chart_div = document.getElementById('piechart2');
+            const chart = new google.visualization.PieChart(chart_div);
             let data = [];
             let rawData = {{ mostFrequentlyChangedFiles|json_encode|raw }};
 
@@ -41,6 +42,10 @@
                     data.push([index, rawData[index]]);
                 }
             }
+
+            google.visualization.events.addListener(chart, 'ready', function () {
+                chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
+            });
 
             chart.draw(
                 google.visualization.arrayToDataTable(data),
