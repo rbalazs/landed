@@ -43,10 +43,6 @@
                 }
             }
 
-            google.visualization.events.addListener(chart, 'ready', function () {
-                chart_div.innerHTML = '<img src="' + chart.getImageURI() + '">';
-            });
-
             chart.draw(
                 google.visualization.arrayToDataTable(data),
                 {
@@ -105,9 +101,9 @@
 </head>
 <body>
 <h1>{{ reponame }}</h1>
+<div id="piechart4" style="width: 900px; height: 500px;"></div>
 <div id="piechart" style="width: 900px; height: 500px;"></div>
 <div id="piechart2" style="width: 900px; height: 500px;"></div>
 <div id="piechart3" style="width: 900px; height: 500px;"></div>
-<div id="piechart4" style="width: 900px; height: 500px;"></div>
 </body>
 </html>

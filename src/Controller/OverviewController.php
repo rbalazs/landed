@@ -7,6 +7,8 @@ use App\BashProcess\GitStatistics;
 use App\Service\RepositoryConfigurations;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -82,13 +84,31 @@ class OverviewController extends AbstractController
         $commitsPerHour = $this->gitStatistics->getCommitPerHour($repo);
         $commitsPerAuthors = $this->gitStatistics->getCommitPerAuthors($repo);
 
-        return $this->render('overview/repo.html.twig', [
+        $htmlSource = $this->renderView('overview/repo.html.twig', [
             'commitsPerAuthors' => $commitsPerAuthors,
             'contribPerWeekday' => $contribPerWeekday,
             'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
             'commitsPerHour' => $commitsPerHour,
             'reponame' => $repo,
         ]);
+
+
+        try {
+            $fsObject = new Filesystem();
+            $projectDir = $this->getParameter('kernel.project_dir');
+            $filePath = $projectDir . "/public/ls/" . $repo . ".html";
+
+            if (!$fsObject->exists($filePath))
+            {
+                $fsObject->touch($filePath);
+                $fsObject->chmod($filePath, 0777);
+                $fsObject->dumpFile($filePath, $htmlSource);
+            }
+        } catch (IOExceptionInterface $exception) {
+            echo "Error creating file at ". $exception->getPath() . PHP_EOL . $exception->getMessage();
+        }
+
+        return new Response($htmlSource);
     }
 
     /**
