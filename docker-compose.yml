@@ -29,7 +29,7 @@ services:
     network_mode: bridge
     build: .docker/nginx
     ports:
-      - 80:80
+      - 8041:80
     volumes:
       - ./public:/app/public:ro
       - ./.docker/nginx/etc/nginx:/etc/nginx:ro,cached

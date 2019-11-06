@@ -66,7 +66,8 @@ class OverviewController extends AbstractController
                         $contribPerWeekday,
                         $mostFrequentlyChangedFiles,
                         $commitsPerHour,
-                        $commitsPerAuthors
+                        $commitsPerAuthors,
+                        $masterMergesPerAuthor
                         ) = $this->getStatsPerRepo($repo);
 
                     $configuredRepositories['repositories'][$foundAtKey]['cloned'] = (bool)$foundAtKey;
@@ -75,6 +76,7 @@ class OverviewController extends AbstractController
                         'contribPerWeekday' => $contribPerWeekday,
                         'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
                         'commitsPerHour' => $commitsPerHour,
+                        'masterMergesPerAuthor' => $masterMergesPerAuthor
                     ];
                 },
                 $repositories

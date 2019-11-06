@@ -115,10 +115,35 @@
                                 }
                             );
                         });
+
+                        google.charts.setOnLoadCallback(function () {
+                            const chart = new google.visualization.PieChart(document.getElementById('piechart{{ repo.name }}5'));
+                            let data = [];
+                            let rawData = {{ repo.data.masterMergesPerAuthor|json_encode|raw }};
+
+                            // Header
+                            data.push(['Author', 'Number of merges'])
+
+                            // Struct data.
+                            for (let index in rawData) {
+                                if (rawData.hasOwnProperty(index)) {
+                                    data.push([index, rawData[index]]);
+                                }
+                            }
+
+                            chart.draw(
+                                google.visualization.arrayToDataTable(data),
+                                {
+                                    title: 'Number of merges by contributors'
+                                }
+                            );
+                        });
+
                     </script>
                     <h1>{{ repo.name }}</h1>
                     <div class="chart" id="piechart{{ repo.name }}4"></div>
                     <div class="chart" id="piechart{{ repo.name }}"></div>
+                    <div class="chart" id="piechart{{ repo.name }}5"></div>
                     <div class="chart" id="piechart{{ repo.name }}2"></div>
                     <div class="chart" id="piechart{{ repo.name }}3"></div>
                 </div>
