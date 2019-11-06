@@ -83,12 +83,14 @@ class OverviewController extends AbstractController
         $mostFrequentlyChangedFiles = $this->gitStatistics->getMostFrequentlyChangingFiles($repo);
         $commitsPerHour = $this->gitStatistics->getCommitPerHour($repo);
         $commitsPerAuthors = $this->gitStatistics->getCommitPerAuthors($repo);
+        $masterMergesPerAuthor = $this->gitStatistics->getMasterMergesPerAuthors($repo);
 
         $htmlSource = $this->renderView('overview/repo.html.twig', [
             'commitsPerAuthors' => $commitsPerAuthors,
             'contribPerWeekday' => $contribPerWeekday,
             'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
             'commitsPerHour' => $commitsPerHour,
+            'masterMergesPerAuthor' => $masterMergesPerAuthor,
             'reponame' => $repo,
         ]);
 

@@ -37,6 +37,27 @@ class GitStatistics
      * @param $repo
      * @return array
      */
+    public function getMasterMergesPerAuthors($repo): array
+    {
+        $result = [];
+
+        $processOutput = $this->getProcessOutput('count_master_merge_commits_per_authors.sh', $repo);
+
+        foreach ($processOutput as $rowPart) {
+            $rowPart = trim($rowPart);
+            $parts = explode(' ', $rowPart);
+            if (!empty($parts[0]) && !empty($parts[1])) {
+                $result[$parts[1]] = (int)$parts[0];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param $repo
+     * @return array
+     */
     public function getCommitPerHour($repo): array
     {
         $commitsPerHour = [];
