@@ -94,8 +94,10 @@ class OverviewController extends AbstractController
             if (!$fsObject->exists($filePath)) {
                 $fsObject->touch($filePath);
                 $fsObject->chmod($filePath, 0777);
-                $fsObject->dumpFile($filePath, $htmlSource);
             }
+
+            $fsObject->dumpFile($filePath, $htmlSource);
+
         } catch (IOExceptionInterface $exception) {
             echo "Error creating file at " . $exception->getPath() . PHP_EOL . $exception->getMessage();
         }
@@ -134,8 +136,9 @@ class OverviewController extends AbstractController
             if (!$fsObject->exists($filePath)) {
                 $fsObject->touch($filePath);
                 $fsObject->chmod($filePath, 0777);
-                $fsObject->dumpFile($filePath, $htmlSource);
             }
+
+            $fsObject->dumpFile($filePath, $htmlSource);
         } catch (IOExceptionInterface $exception) {
             echo "Error creating file at " . $exception->getPath() . PHP_EOL . $exception->getMessage();
         }
