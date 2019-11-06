@@ -64,12 +64,20 @@ class GitStatistics
 
         $processOutput = $this->getProcessOutput('count_commits_per_hour.sh', $repo);
 
+        for ($i = 0; $i < 24; $i++) {
+            $key = $i . ':00 - ' . ($i + 1) . ':00';
+            $commitsPerHour[$key] = 0;
+        }
+
         foreach ($processOutput as $rowPart) {
-            $rowPart = trim($rowPart);
-            $parts = explode(' ', $rowPart);
-            if (!empty($parts[0]) && !empty($parts[1])) {
-                $key = $parts[1] . ':00:00 - ' . $parts[1] . ':59:59';
-                $commitsPerHour[$key] = (int)$parts[0];
+
+            for ($i = 0; $i < 24; $i++) {
+                $key = $i . ':00 - ' . ($i + 1) . ':00';
+                $rowPart = trim($rowPart);
+                $parts = explode(' ', $rowPart);
+                if (!empty($parts[0]) && !empty($parts[1]) && $i == $parts[1]) {
+                    $commitsPerHour[$key] = (int)$parts[0];
+                }
             }
         }
 
