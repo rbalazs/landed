@@ -61,16 +61,50 @@ class OverviewController extends AbstractController
             array_map(
                 function ($repo) use (&$configuredRepositories) {
                     $foundAtKey = array_search($repo, array_column($configuredRepositories['repositories'], 'name'));
+
+                    list(
+                        $contribPerWeekday,
+                        $mostFrequentlyChangedFiles,
+                        $commitsPerHour,
+                        $commitsPerAuthors
+                        ) = $this->getStatsPerRepo($repo);
+
                     $configuredRepositories['repositories'][$foundAtKey]['cloned'] = (bool)$foundAtKey;
+                    $configuredRepositories['repositories'][$foundAtKey]['data'] = [
+                        'commitsPerAuthors' => $commitsPerAuthors,
+                        'contribPerWeekday' => $contribPerWeekday,
+                        'mostFrequentlyChangedFiles' => $mostFrequentlyChangedFiles,
+                        'commitsPerHour' => $commitsPerHour,
+                    ];
                 },
                 $repositories
             );
         }
 
-        return $this->render('overview/index.html.twig', [
+        $htmlSource = $this->renderView('overview/index.html.twig', [
             'repositories' => $configuredRepositories['repositories'],
         ]);
+
+
+        try {
+            $fsObject = new Filesystem();
+            $projectDir = $this->getParameter('kernel.project_dir');
+            $filePath = $projectDir . "/public/ls/OVERVIEW.html";
+
+            if (!$fsObject->exists($filePath)) {
+                $fsObject->touch($filePath);
+                $fsObject->chmod($filePath, 0777);
+            }
+
+            $fsObject->dumpFile($filePath, $htmlSource);
+
+        } catch (IOExceptionInterface $exception) {
+            echo "Error creating file at " . $exception->getPath() . PHP_EOL . $exception->getMessage();
+        }
+
+        return new Response($htmlSource);
     }
+
 
     /**
      * @Route("/overview/{repo}", name="overview-per-repo")
@@ -79,11 +113,13 @@ class OverviewController extends AbstractController
      */
     public function perRepo($repo)
     {
-        $contribPerWeekday = $this->gitStatistics->getCommitPerWeekday($repo);
-        $mostFrequentlyChangedFiles = $this->gitStatistics->getMostFrequentlyChangingFiles($repo);
-        $commitsPerHour = $this->gitStatistics->getCommitPerHour($repo);
-        $commitsPerAuthors = $this->gitStatistics->getCommitPerAuthors($repo);
-        $masterMergesPerAuthor = $this->gitStatistics->getMasterMergesPerAuthors($repo);
+        list(
+            $contribPerWeekday,
+            $mostFrequentlyChangedFiles,
+            $commitsPerHour,
+            $commitsPerAuthors,
+            $masterMergesPerAuthor
+            ) = $this->getStatsPerRepo($repo);
 
         $htmlSource = $this->renderView('overview/repo.html.twig', [
             'commitsPerAuthors' => $commitsPerAuthors,
@@ -94,20 +130,19 @@ class OverviewController extends AbstractController
             'reponame' => $repo,
         ]);
 
-
         try {
             $fsObject = new Filesystem();
             $projectDir = $this->getParameter('kernel.project_dir');
             $filePath = $projectDir . "/public/ls/" . $repo . ".html";
 
-            if (!$fsObject->exists($filePath))
-            {
+            if (!$fsObject->exists($filePath)) {
                 $fsObject->touch($filePath);
                 $fsObject->chmod($filePath, 0777);
-                $fsObject->dumpFile($filePath, $htmlSource);
             }
+
+            $fsObject->dumpFile($filePath, $htmlSource);
         } catch (IOExceptionInterface $exception) {
-            echo "Error creating file at ". $exception->getPath() . PHP_EOL . $exception->getMessage();
+            echo "Error creating file at " . $exception->getPath() . PHP_EOL . $exception->getMessage();
         }
 
         return new Response($htmlSource);
@@ -137,5 +172,26 @@ class OverviewController extends AbstractController
         }
 
         return $this->redirectToRoute('overview');
+    }
+
+    /**
+     * @param $repo
+     * @return array
+     */
+    private function getStatsPerRepo($repo): array
+    {
+        $contribPerWeekday = $this->gitStatistics->getCommitPerWeekday($repo);
+        $mostFrequentlyChangedFiles = $this->gitStatistics->getMostFrequentlyChangingFiles($repo);
+        $commitsPerHour = $this->gitStatistics->getCommitPerHour($repo);
+        $commitsPerAuthors = $this->gitStatistics->getCommitPerAuthors($repo);
+        $masterMergesPerAuthor = $this->gitStatistics->getMasterMergesPerAuthors($repo);
+
+        return [
+            $contribPerWeekday,
+            $mostFrequentlyChangedFiles,
+            $commitsPerHour,
+            $commitsPerAuthors,
+            $masterMergesPerAuthor
+        ];
     }
 }

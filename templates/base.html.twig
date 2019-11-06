@@ -3,7 +3,18 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
         {% block stylesheets %}{% endblock %}
+        <style>
+            .chart {
+                float: left;
+                width: 450px;
+                height: 300px;
+            }
+            .repo_holder {
+                float: left;
+            }
+        </style>
     </head>
     <body>
         {% block body %}{% endblock %}

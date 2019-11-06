@@ -1,31 +1,127 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Landed{% endblock %}
+{% block title %}Projects{% endblock %}
 
 {% block body %}
     <div class="example-wrapper">
-        <h1>Hello bello!</h1>
+
         {% for label, messages in app.flashes %}
             {% for message in messages %}
                 <h2>{{ message }}</h2>
             {% endfor %}
         {% endfor %}
-        Betöltött kódtárolók:
+
         <ul>
             {% for repo in repositories %}
-                <li>
-                    <code>
-                        <a href="{{ path('overview-per-repo', {'repo': repo.name}) }}">{{ repo.name }}
-                        </a>
-                    </code>
-                    {% if repo.cloned is defined %}
-                        ✅
-                    {% else %}
-                        <a href="{{ path('clone-repo', {'repo': repo.name}) }}" style="background-color: cornsilk">
-                            => CLONE from {{ repo.url }}
-                        </a>
-                    {% endif %}
-                </li>
+                <div class="repo_holder">
+                    <li>
+                        <code>
+                            <a href="{{ path('overview-per-repo', {'repo': repo.name}) }}">{{ repo.name }}</a>
+                        </code>
+                        {% if repo.cloned is defined %}
+                            ✅
+                        {% else %}
+                            <a href="{{ path('clone-repo', {'repo': repo.name}) }}" style="background-color: cornsilk">
+                                => Can be clone from {{ repo.url }}
+                            </a>
+                        {% endif %}
+                    </li>
+
+                    <script type="text/javascript">
+                        google.charts.load('current', {'packages': ['corechart']});
+
+                        google.charts.setOnLoadCallback(function () {
+                            const chart = new google.visualization.PieChart(document.getElementById('piechart{{ repo.name }}'));
+                            let data = [];
+                            let rawData = {{ repo.data.contribPerWeekday|json_encode|raw }};
+
+                            data.push(['Weekday', 'Number of commits'])
+
+                            for (let index in rawData) {
+                                if (rawData.hasOwnProperty(index)) {
+                                    data.push([index, rawData[index]]);
+                                }
+                            }
+
+                            chart.draw(
+                                google.visualization.arrayToDataTable(data),
+                                {
+                                    title: 'Number of commits per weekday'
+                                }
+                            );
+                        });
+
+                        google.charts.setOnLoadCallback(function () {
+                            let chart_div = document.getElementById('piechart{{ repo.name }}2');
+                            const chart = new google.visualization.PieChart(chart_div);
+                            let data = [];
+                            let rawData = {{ repo.data.mostFrequentlyChangedFiles|json_encode|raw }};
+
+                            data.push(['Weekday', 'Number of commits'])
+
+                            for (let index in rawData) {
+                                if (rawData.hasOwnProperty(index)) {
+                                    data.push([index, rawData[index]]);
+                                }
+                            }
+
+                            chart.draw(
+                                google.visualization.arrayToDataTable(data),
+                                {
+                                    title: 'Most frequently changed files'
+                                }
+                            );
+                        });
+
+
+                        google.charts.setOnLoadCallback(function () {
+                            const chart = new google.visualization.LineChart(document.getElementById('piechart{{ repo.name }}3'));
+                            let data = [];
+                            let rawData = {{ repo.data.commitsPerHour|json_encode|raw }};
+
+                            data.push(['Weekday', 'Number of commits'])
+
+                            for (let index in rawData) {
+                                if (rawData.hasOwnProperty(index)) {
+                                    data.push([index, rawData[index]]);
+                                }
+                            }
+
+                            chart.draw(
+                                google.visualization.arrayToDataTable(data),
+                                {
+                                    title: 'Number of commits distributed over time'
+                                }
+                            );
+                        });
+
+                        google.charts.setOnLoadCallback(function () {
+                            const chart = new google.visualization.PieChart(document.getElementById('piechart{{ repo.name }}4'));
+                            let data = [];
+                            let rawData = {{ repo.data.commitsPerAuthors|json_encode|raw }};
+
+                            data.push(['Author', 'Number of commits'])
+
+                            for (let index in rawData) {
+                                if (rawData.hasOwnProperty(index)) {
+                                    data.push([index, rawData[index]]);
+                                }
+                            }
+
+                            chart.draw(
+                                google.visualization.arrayToDataTable(data),
+                                {
+                                    title: 'Number of commits pusdh by contributors'
+                                }
+                            );
+                        });
+                    </script>
+                    <h1>{{ repo.name }}</h1>
+                    <div class="chart" id="piechart{{ repo.name }}4"></div>
+                    <div class="chart" id="piechart{{ repo.name }}"></div>
+                    <div class="chart" id="piechart{{ repo.name }}2"></div>
+                    <div class="chart" id="piechart{{ repo.name }}3"></div>
+                </div>
             {% endfor %}
         </ul>
     </div>
