@@ -83,19 +83,35 @@ class OverviewController extends AbstractController
         }
 
         $sumContribPerWeekday = ['Mon' => 0, 'Tue' => 0, 'Wed' => 0, 'Thu' => 0, 'Fri' => 0, 'Sat' => 0, 'Sun' => 0];
-        foreach ($configuredRepositories['repositories'] as $repository) {
+        $sumContribPerHour = [];
+        foreach ($configuredRepositories['repositories'] as $key => $repository) {
+            if (empty($repository['data'])) {
+                unset($configuredRepositories['repositories'][$key]);
+                continue;
+            }
+
             foreach ($repository['data']['contribPerWeekday'] as $weekday => $weekdayContrib) {
                 if (!in_array($weekday, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])) {
                     continue;
                 }
                 $sumContribPerWeekday[$weekday] += $weekdayContrib;
-
             }
+
+            foreach ($repository['data']['commitsPerHour'] as $hour => $weekdayContrib) {
+                if (!isset($sumContribPerHour[$hour])) {
+                    $sumContribPerHour[$hour] = 0;
+                }
+
+                $sumContribPerHour[$hour] += $weekdayContrib;
+            }
+
+
         }
 
         $htmlSource = $this->renderView('overview/index.html.twig', [
             'repositories' => $configuredRepositories['repositories'],
-            'sumContribPerWeekday' => $sumContribPerWeekday
+            'sumContribPerWeekday' => $sumContribPerWeekday,
+            'sumContribPerHour' => $sumContribPerHour
         ]);
 
         try {
