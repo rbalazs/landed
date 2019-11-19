@@ -1,10 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Projects{% endblock %}
+{% block title %}Overview{% endblock %}
 
 {% block body %}
-
-    <div style="width: 700px; height: 500px" id="piechart_all"></div>
+    <h2>Engineering overview 2018-04-01-től</h2>
+    <div style="width: 700px; height: 500px" id="piechart_sum_of_commits"></div>
     <div class="example-wrapper">
 
         {% for label, messages in app.flashes %}
@@ -17,7 +17,7 @@
                 google.charts.load('current', {'packages': ['corechart']});
 
                         google.charts.setOnLoadCallback(function () {
-                            const chart = new google.visualization.PieChart(document.getElementById('piechart_all'));
+                            const chart = new google.visualization.PieChart(document.getElementById('piechart_sum_of_commits'));
                             let data = [];
                             let rawData = {{ sumContribPerWeekday|json_encode|raw }};
 
@@ -32,7 +32,7 @@
                             chart.draw(
                                 google.visualization.arrayToDataTable(data),
                                 {
-                                    title: 'Sum of commits per weekday'
+                                    title: 'Kód módosítások naponkénti bontásban - összesítés'
                                 }
                             );
                         });
@@ -73,7 +73,7 @@
                             chart.draw(
                                 google.visualization.arrayToDataTable(data),
                                 {
-                                    title: 'Number of commits per weekday'
+                                    title: 'Kód módosítások naponkénti bontásban'
                                 }
                             );
                         });
@@ -95,7 +95,7 @@
                             chart.draw(
                                 google.visualization.arrayToDataTable(data),
                                 {
-                                    title: 'Most frequently changed files'
+                                    title: 'Leggyakrabban módosított fájl(ok)'
                                 }
                             );
                         });
@@ -117,7 +117,7 @@
                             chart.draw(
                                 google.visualization.arrayToDataTable(data),
                                 {
-                                    title: 'Number of commits distributed over time'
+                                    title: 'Kód módosítások eloszlása időben'
                                 }
                             );
                         });
@@ -138,7 +138,7 @@
                             chart.draw(
                                 google.visualization.arrayToDataTable(data),
                                 {
-                                    title: 'Number of commits pusdh by contributors'
+                                    title: 'Kód módosítások eloszlása szerzőnként'
                                 }
                             );
                         });
@@ -161,7 +161,7 @@
                             chart.draw(
                                 google.visualization.arrayToDataTable(data),
                                 {
-                                    title: 'Number of merges by contributors'
+                                    title: 'Kód módosítások élesítésének eloszlása szerzőnként'
                                 }
                             );
                         });

@@ -54,7 +54,6 @@ class OverviewController extends AbstractController
     public function index()
     {
         $configuredRepositories = $this->repositoryConfigurations->load($this->getParameter('kernel.project_dir'));
-
         $repositories = $this->gitStatistics->listRepositories();
 
         if (!empty($configuredRepositories['repositories'])) {
@@ -83,27 +82,21 @@ class OverviewController extends AbstractController
             );
         }
 
-        $sumContribPerWeekday = [];
+        $sumContribPerWeekday = ['Mon' => 0, 'Tue' => 0, 'Wed' => 0, 'Thu' => 0, 'Fri' => 0, 'Sat' => 0, 'Sun' => 0];
         foreach ($configuredRepositories['repositories'] as $repository) {
             foreach ($repository['data']['contribPerWeekday'] as $weekday => $weekdayContrib) {
                 if (!in_array($weekday, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])) {
                     continue;
                 }
+                $sumContribPerWeekday[$weekday] += $weekdayContrib;
 
-                if (!isset($sumContribPerWeekday[$weekday])) {
-                    $sumContribPerWeekday[$weekday] = 0;
-                } else {
-                    $sumContribPerWeekday[$weekday] += $weekdayContrib;
-                }
             }
         }
-
 
         $htmlSource = $this->renderView('overview/index.html.twig', [
             'repositories' => $configuredRepositories['repositories'],
             'sumContribPerWeekday' => $sumContribPerWeekday
         ]);
-
 
         try {
             $fsObject = new Filesystem();
