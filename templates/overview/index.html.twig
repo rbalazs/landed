@@ -3,6 +3,8 @@
 {% block title %}Projects{% endblock %}
 
 {% block body %}
+
+    <div style="width: 700px; height: 500px" id="piechart_all"></div>
     <div class="example-wrapper">
 
         {% for label, messages in app.flashes %}
@@ -10,6 +12,31 @@
                 <h2>{{ message }}</h2>
             {% endfor %}
         {% endfor %}
+
+           <script type="text/javascript">
+                google.charts.load('current', {'packages': ['corechart']});
+
+                        google.charts.setOnLoadCallback(function () {
+                            const chart = new google.visualization.PieChart(document.getElementById('piechart_all'));
+                            let data = [];
+                            let rawData = {{ sumContribPerWeekday|json_encode|raw }};
+
+                            data.push(['Weekday', 'Number of commits'])
+
+                            for (let index in rawData) {
+                                if (rawData.hasOwnProperty(index)) {
+                                    data.push([index, rawData[index]]);
+                                }
+                            }
+
+                            chart.draw(
+                                google.visualization.arrayToDataTable(data),
+                                {
+                                    title: 'Sum of commits per weekday'
+                                }
+                            );
+                        });
+            </script>
 
         <ul>
             {% for repo in repositories %}

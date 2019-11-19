@@ -83,8 +83,25 @@ class OverviewController extends AbstractController
             );
         }
 
+        $sumContribPerWeekday = [];
+        foreach ($configuredRepositories['repositories'] as $repository) {
+            foreach ($repository['data']['contribPerWeekday'] as $weekday => $weekdayContrib) {
+                if (!in_array($weekday, ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'])) {
+                    continue;
+                }
+
+                if (!isset($sumContribPerWeekday[$weekday])) {
+                    $sumContribPerWeekday[$weekday] = 0;
+                } else {
+                    $sumContribPerWeekday[$weekday] += $weekdayContrib;
+                }
+            }
+        }
+
+
         $htmlSource = $this->renderView('overview/index.html.twig', [
             'repositories' => $configuredRepositories['repositories'],
+            'sumContribPerWeekday' => $sumContribPerWeekday
         ]);
 
 
